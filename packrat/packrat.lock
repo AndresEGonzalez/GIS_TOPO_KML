@@ -35,6 +35,12 @@ Source: CRAN
 Version: 0.4.7-1
 Hash: 16ca16d36eb18d1d16113606ecc5c400
 
+Package: plyr
+Source: CRAN
+Version: 1.8.4
+Hash: 9710078c5fd126420ec039be1db44994
+Requires: Rcpp
+
 Package: raster
 Source: CRAN
 Version: 2.5-8
