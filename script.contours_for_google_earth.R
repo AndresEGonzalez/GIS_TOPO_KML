@@ -72,7 +72,7 @@ make_kml_contours <- function(filename, step = 25, simplify = 0.001, ftp = F)
     # Round minimal isoline to 100' (or 194 -> 200)
     m <- seq(round_any(min(im$z), 100, f = ceiling), max(im$z), step)[as.numeric(gsub("C_", "", slot(x, "ID")))]
     # make thicker lines at 100 and 500 m Isolines, and color white 
-    kmlLine(x, name = m, description = paste0(m, "m-Isoline"), col = "#FFFefb90", 
+    kmlLine(x, name = m, description = paste0(m, "m-Isoline"), col = "#FFFefb45", 
             lwd = ifelse(m%%100 == 0, ifelse(m%%500, 3, 1.25), 0.45))
   })
   
