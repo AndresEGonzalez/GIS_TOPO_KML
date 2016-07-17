@@ -20,7 +20,7 @@
 ## linux require "libgdal1" library
 
 rm(list=ls())
-setwd("~/Documents/1_WORKING/DATA/GIS_Database/DEM_2")
+setwd("~/Documents/1_WORKING/DATA/GIS_Database/HGT")
 (files <- dir(pattern = ".hgt"))
 ## s = division applied to each side of raster, i.e. s = 2 gives 4 tiles, 3 gives 9, etc.
 split_raster <- function(file, s = 2) {
