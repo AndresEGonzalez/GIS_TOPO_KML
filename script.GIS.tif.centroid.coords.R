@@ -11,91 +11,15 @@ library(magrittr)#for pipe operator %>%
 setwd("~/Documents/1_WORKING/DATA/GIS_Database/DEM_2/RASTER")
 (tifnames <- gsub(".tif", ".tif", dir(pattern = ".tif")))
 
-################################ 
-# raster to choice
+## make folder for output and set directory
+dir.create("~/Documents/1_WORKING/DATA/GIS_Database/DEM_2/SELECT_RASTER")
+#source file location 
+current.folder <-"~/Documents/1_WORKING/DATA/GIS_Database/DEM_2/RASTER"
 
-raster.choice <- function(file,POI)
-  {
-  #extract from all raster (.tif file) middle point coords to compare
-  raster.centro.coord <- function(file)
-  {
-    r <- raster(file)
-    x_centers <- xFromCol(r, col=ncol(r)/2)
-    y_centers <- yFromRow(r, row = nrow(r)/2)
-    (mid_p <- 
-      data.frame(r@data@names, 
-                 X=as.numeric(x_centers), 
-                 Y=as.numeric(y_centers), stringsAsFactors = FALSE))
-    
-  }
-  
-  #all raster pass mid point coord to data frame
-  LS.to.df <- function(file)
-  {
-    l.dat<-lapply(file, raster.centro.coord)
-    xy.frame<-do.call(rbind,l.dat) %>% as.data.frame
-  }
-  
-  xy.frame <-LS.to.df(file)
-  # return(xy.frame)
-  
-  #function calcule distance between geographic points (all raster coord v/s POI)
-  dist.to.raster.centre <- function(POI)
-  {
-    raster.poi<-SpatialPointsDataFrame(xy.frame[,c(2:3)], xy.frame)
-    dist<-pointDistance(raster.poi, POI, lonlat = TRUE)#in meters
-    return(data.frame(xy.frame[which.min(dist),],POIx=POI[1],
-                      POIy=POI[2],min(dist)))#show raster data for select
-  }
-  choice<-dist.to.raster.centre(POI)
-  return(choice)
-}
-
-raster.choice(tifnames,c(-71.253619, -30.254160))
-
-
-
-
-
-
-### working around
-tifnames2 <- "S33W067_0_0.tif"
-dput(tifnames)
-
-r <- raster("S33W067_0_0.tif")
-str(r)
-head(r)
-summary(r)
-
-#extract vertices coord
-xy <-xyFromCell(r, c(1, ncol(r), ncell(r)-ncol(r)+1, ncell(r)))
-str(xy)
-#convert spatial points
-sp <- SpatialPoints(xy)
-
-#get raster extention
-ext<-extent(r)
-#see raster values
-getValues(r, row = 10)
-
-#find mid point to raster
-x_centers <- xFromCol(r, col=ncol(r)/2)
-y_centers <- yFromRow(r, row = nrow(r)/2)
-
-mid_p <- c(x_centers, y_centers, r@data@names)
-
-# Plot raster
-plot(r)
-text(xy, c("xy1","xy2","xy3","xy4"))
-text(sp, c("z1","z2","z3","z4"))
-
-text(x_centers, y_centers, "centroid" )
-plot(ext, col="red",add=TRUE)
-image(r)
 
 
 ################################################
-#functions
+#function
 
 #extract from all raster (.tif file) middle point coords to compare
 raster.centro.coord <- function(file)
@@ -130,8 +54,20 @@ dist.to.raster.centre <- function(POI,coords,data)
 }
 
 # encuentra la imagen raster mas cercana al POI de interes
-POI <-c(-71.254762, -33.264529)#c(-71.197299, -32.948736)#c(-70.749342, -33.250147)
+POI <-c(-71.320965, -30.144305)#La serena c(-71.130271, -29.850007)#til-tilc(-71.254762, -33.264529)#c(-71.197299, -32.948736)#c(-70.749342, -33.250147)
 # coords <- xy.frame[,c(2:3)]
 # data xy.frame
 dist.to.raster.centre(POI, xy.frame[,c(2:3)], xy.frame)
+
+##########################################################
+## Copy seleted file to SELECT_RASTER folder before created
+select.file<-dist.to.raster.centre(POI, xy.frame[,c(2:3)], xy.frame)
+file.name<-(paste(select.file[1,1],"tif", sep="."))
+
+#copy file location
+new.folder <-"~/Documents/1_WORKING/DATA/GIS_Database/DEM_2/SELECT_RASTER"
+
+# copy the files to the new folder
+file.copy(file.name, new.folder)
+list.files(new.folder, ".tif")
 
