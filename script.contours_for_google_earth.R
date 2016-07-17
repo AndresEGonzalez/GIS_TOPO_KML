@@ -23,6 +23,7 @@ library(raster)
 library(maptools)
 library(rgeos)
 library(RCurl)#loading required package: bitops
+library(plyr)
 
 # dem in hgt-format downloaded from http://www.viewfinderpanoramas.org/dem3.html#alps
 # as done here:
@@ -32,12 +33,8 @@ library(RCurl)#loading required package: bitops
 
 
 
-setwd("~/Documents/1_WORKING/DATA/GIS_Database/DEM_2")
+setwd("~/Documents/1_WORKING/DATA/GIS_Database/DEM_2/SELECT_RASTER")
 (filenames <- gsub(".tif", "", dir(pattern = ".tif")))
-
-## make folder for output and set directory
-dir.create("~/Documents/1_WORKING/DATA/GIS_Database/DEM_2/KML")
- setwd("~/Documents/1_WORKING/DATA/GIS_Database/DEM_2/KML")
 
 ## funtion make_kml_contours
 ## arguments
@@ -45,17 +42,17 @@ dir.create("~/Documents/1_WORKING/DATA/GIS_Database/DEM_2/KML")
 ## simplify: 1-0, 1 is no generalization, 0 is straight line
 ## ftp: optional ftp uload
 
-make_kml_contours <- function(filename, step = 0, simplify = 0.001, ftp = F)
+make_kml_contours <- function(filename, step = 25, simplify = 0.001, ftp = F)
   
 {
   ## coerce into SpatialGridDataFrame
-  dem <- readGDAL(paste0("~/Documents/1_WORKING/DATA/GIS_Database/DEM_2/", filename, ".tif"))
-  dem$band1[is.na(dem$band1)]<-0 #AGL
+  dem <- readGDAL(paste0("~/Documents/1_WORKING/DATA/GIS_Database/DEM_2/SELECT_RASTER/", filename, ".tif"))
+  # dem$band1[is.na(dem$band1)]<-0 #AGL
   ## make image object for contourLines function
   im <- as.image.SpatialGridDataFrame(dem)
 
   # check: summary(im$z)
-  cl <- contourLines(im, levels = seq(min(im$z), max(im$z), step))#cero
+  cl <- contourLines(im, levels = seq(0, max(im$z), step))#cero
   
   ## back convert to SpatialLinesDataFrame
   SLDF <- ContourLines2SLDF(cl)
@@ -71,10 +68,12 @@ make_kml_contours <- function(filename, step = 0, simplify = 0.001, ftp = F)
   ## convert simplified SLDF to KML (btw, that's how to extract IDs unlist(lapply(slot(simplSLDF, 'lines'), function(x) slot(x, 'ID'))) )
   out <- sapply(slot(simplSLDF, "lines"), function(x) {
     # get meter level, by picking from sequence by ID: ID = 1 -> 1*step m, ID = 2, 2*step m, etc.
-    m <- seq(min(im$z), max(im$z), step)[as.numeric(gsub("C_", "", slot(x, "ID")))]#m <- seq(0, max(im$z), step)[as.numeric(gsub("C_", "", slot(x, "ID")))]
-    # make thicker lines at 100 and 500 m Isolines, and color white and 60% alpha opacity
+    # m <- seq(min(im$z), max(im$z), step)[as.numeric(gsub("C_", "", slot(x, "ID")))]#m <- seq(0, max(im$z), step)[as.numeric(gsub("C_", "", slot(x, "ID")))]
+    # Round minimal isoline to 100' (or 194 -> 200)
+    m <- seq(round_any(min(im$z), 100, f = ceiling), max(im$z), step)[as.numeric(gsub("C_", "", slot(x, "ID")))]
+    # make thicker lines at 100 and 500 m Isolines, and color white 
     kmlLine(x, name = m, description = paste0(m, "m-Isoline"), col = "#FFFefb90", 
-            lwd = ifelse(m%%100 == 0, ifelse(m%%500, 2, 1.25), 0.45))
+            lwd = ifelse(m%%100 == 0, ifelse(m%%500, 3, 1.25), 0.45))
   })
   
   # write KML
@@ -89,13 +88,13 @@ see <a href=\"htp://gimoya.bplaced.net/terrain-overlays.blogspot.co.at\">Terrain
   cat(kmlLine()$footer, file = kmlFile, sep = "\n")
   close(kmlFile)
   
-  kmlName <- paste0("CONTOURS_", filename, ".kml")
+  kmlName <- paste0("TOPO_", filename, ".kml")
   file.copy(tf, kmlName, overwrite = FALSE)#file.copy -> file.rename error: https://github.com/wch/vtest/issues/14
  
   if (ftp == T) ftpUpload(kmlName, paste0('ftp://gimoya:password@gimoya.bplaced.net/Terrain-Overlays/downloads/', kmlName))
 }
 
-for (filename in filenames[2:length(filenames)])
+for (filename in filenames[1:length(filenames)])
 {
   tryCatch(make_kml_contours(filename, step = 25, simplify = 0.000001, ftp = F),#0.000001
            error = function(e) message(paste0("\n..something happend with dataset ", filename, ":\n", e)))
