@@ -46,4 +46,4 @@ split_raster <- function(file, s = 2) {
 }
 
 ## process all files and save to same directory
-mapply(split_raster, files, 2) 
+mapply(split_raster, files, 1) 
