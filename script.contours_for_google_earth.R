@@ -47,7 +47,7 @@ make_kml_contours <- function(filename, step = 25, simplify = 0.001, ftp = F)
 {
   ## coerce into SpatialGridDataFrame
   dem <- readGDAL(paste0("~/Documents/1_WORKING/DATA/GIS_Database/DEM_2/SELECT_RASTER/", filename, ".tif"))
-  # dem$band1[is.na(dem$band1)]<-0 #AGL
+   dem$band1[is.na(dem$band1)]<-0 #AGL
   ## make image object for contourLines function
   im <- as.image.SpatialGridDataFrame(dem)
 
@@ -96,7 +96,7 @@ see <a href=\"htp://gimoya.bplaced.net/terrain-overlays.blogspot.co.at\">Terrain
 
 for (filename in filenames[1:length(filenames)])
 {
-  tryCatch(make_kml_contours(filename, step = 50, simplify = 0.000001, ftp = F),#0.000001
+  tryCatch(make_kml_contours(filename, step = 25, simplify = 0.000001, ftp = F),#0.000001
            error = function(e) message(paste0("\n..something happend with dataset ", filename, ":\n", e)))
   cat("File ", filename, " done!..\n")
 }
