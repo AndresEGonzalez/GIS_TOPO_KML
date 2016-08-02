@@ -54,7 +54,7 @@ dist.to.raster.centre <- function(POI,coords,data)
 }
 
 # encuentra la imagen raster mas cercana al POI de interes
-POI <-c(-71.270606, -36.151356)#monte oscuro #Lag Dial c(-70.948838, -36.448823)#Lambert c(-71.320965, -30.144305)#La serena c(-71.130271, -29.850007)#til-tilc(-71.254762, -33.264529)#c(-71.197299, -32.948736)#c(-70.749342, -33.250147)
+POI <-c(-71.219194,-29.194332)#Chungungo#c(-71.270606, -36.151356)#monte oscuro #Lag Dial c(-70.948838, -36.448823)#Lambert c(-71.320965, -30.144305)#La serena c(-71.130271, -29.850007)#til-tilc(-71.254762, -33.264529)#c(-71.197299, -32.948736)#c(-70.749342, -33.250147)
 # coords <- xy.frame[,c(2:3)]
 # data xy.frame
 dist.to.raster.centre(POI, xy.frame[,c(2:3)], xy.frame)
